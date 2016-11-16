@@ -25,7 +25,6 @@ public class MusicService extends Service {
         super.onCreate();
         player = MediaPlayer.create(this, R.raw.my_old_friend);
         instance = this;
-        //player.prepareAsync();  // don't block main thread
     }
 
     public static MusicService getInstance() {
@@ -35,9 +34,7 @@ public class MusicService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        player.stop();
-        player = null;
-        instance = null;
+        stop();
     }
 
     @Override
@@ -48,13 +45,14 @@ public class MusicService extends Service {
     }
 
     public void play() {
-        //player.reset();
         player.seekTo(0);
         player.start();
     }
 
     public void stop() {
         player.stop();
+        player.release();
+        instance = null;
+        player = null;
     }
-
 }

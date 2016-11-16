@@ -34,7 +34,6 @@ public class MainActivity extends Activity {
 
             @Override
             public void onClick(View view) {
-                MusicService.getInstance().stop();
                 stopService(new Intent(MainActivity.this, MusicService.class));
             }
         });
