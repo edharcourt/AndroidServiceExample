@@ -1,5 +1,8 @@
 package com.example.ehar.serviceexample;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -18,6 +21,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private MediaPlayer player = null;
     private static MusicService instance = null;
 
+    private static final int NOTIFICATION_ID = 123;
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -28,7 +33,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void onCreate() {
         super.onCreate();
 
+        // Don't create a media player this way since the
+        // media is not a resource but an external file.
         //player = MediaPlayer.create(this, R.raw.my_old_friend);
+
     }
 
     public static MusicService getInstance() {
@@ -73,10 +81,32 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         player.release();
         instance = null;
         player = null;
+
+        // cancel the notification
+        NotificationManager nmgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        nmgr.cancel(NOTIFICATION_ID);
     }
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         mediaPlayer.start();
+
+        // Build a notification for the playing song
+        Notification.Builder b = new Notification.Builder(this).
+                setSmallIcon(R.drawable.placeholder).
+                setContentTitle("Harcourtify").
+                setContentText("Stop");
+
+        NotificationManager nmgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0, intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+        b.setContentIntent(resultPendingIntent);
+        nmgr.notify(NOTIFICATION_ID, b.build());
+
     }
 }
